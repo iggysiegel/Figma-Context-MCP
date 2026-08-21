@@ -23,11 +23,22 @@ type SvgOptions = {
   simplifyStroke: boolean;
 };
 
+/**
+ * Figma for Government base URL. Per Figma's REST API docs the gov API is the
+ * standard API on a different hostname — same paths, same auth headers, same
+ * response shapes — so this string is the entire difference from upstream.
+ *
+ * Exported so test fetch-mocks match on the same value: a mock literal that
+ * drifts from this one stops matching and silently issues a real network
+ * request instead of failing the test.
+ */
+export const FIGMA_API_BASE_URL = "https://api.figma-gov.com";
+
 export class FigmaService {
   private readonly apiKey: string;
   private readonly oauthToken: string;
   private readonly useOAuth: boolean;
-  private readonly baseUrl = "https://api.figma.com/v1";
+  private readonly baseUrl = `${FIGMA_API_BASE_URL}/v1`;
 
   constructor({ figmaApiKey, figmaOAuthToken, useOAuth }: FigmaAuthOptions) {
     this.apiKey = figmaApiKey || "";

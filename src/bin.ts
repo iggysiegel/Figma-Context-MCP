@@ -57,7 +57,8 @@ const argv = cli({
     },
     noTelemetry: {
       type: Boolean,
-      description: "Disable usage telemetry (telemetry is on by default)",
+      description:
+        "Disable usage telemetry (already off by default; opt in with FRAMELINK_TELEMETRY=on)",
     },
   },
   commands: [fetchCommand],

@@ -19,6 +19,7 @@ import { CallToolResultSchema } from "@modelcontextprotocol/sdk/types.js";
 import type { Server } from "http";
 import type { AddressInfo } from "net";
 import { startHttpServer, stopHttpServer } from "~/server.js";
+import { FIGMA_API_BASE_URL } from "~/services/figma.js";
 import { initTelemetry, shutdown as shutdownTelemetry } from "~/telemetry/index.js";
 
 const PER_REQUEST_KEY = "figd_TENANT_SECRET_xyz789";
@@ -29,6 +30,9 @@ describe("per-request telemetry redaction", () => {
 
   beforeEach(() => {
     captureSpy.mockClear();
+    // Telemetry is opt-in in this fork, so this test has to explicitly turn it
+    // on — it exercises the capture path, which is unreachable by default.
+    vi.stubEnv("FRAMELINK_TELEMETRY", "on");
     // Init with NO global redaction secrets so the assertion proves the
     // per-request AsyncLocalStorage path is what's doing the scrubbing.
     initTelemetry({ optOut: false, immediateFlush: true, redactFromErrors: [] });
@@ -40,7 +44,7 @@ describe("per-request telemetry redaction", () => {
     vi.stubGlobal(
       "fetch",
       vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
-        if (String(input).startsWith("https://api.figma.com")) {
+        if (String(input).startsWith(FIGMA_API_BASE_URL)) {
           throw new Error(`upstream failure (token=${PER_REQUEST_KEY})`);
         }
         return realFetch(input, init);
@@ -56,6 +60,7 @@ describe("per-request telemetry redaction", () => {
     }
     await shutdownTelemetry();
     vi.unstubAllGlobals();
+    vi.unstubAllEnvs();
   });
 
   it("scrubs per-request X-Figma-Token from telemetry error_message", async () => {

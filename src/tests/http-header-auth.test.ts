@@ -5,7 +5,7 @@ import { CallToolResultSchema } from "@modelcontextprotocol/sdk/types.js";
 import type { Server } from "http";
 import type { AddressInfo } from "net";
 import { startHttpServer, stopHttpServer } from "~/server.js";
-import type { FigmaAuthOptions } from "~/services/figma.js";
+import { FIGMA_API_BASE_URL, type FigmaAuthOptions } from "~/services/figma.js";
 
 const figmaFileResponse = {
   name: "Auth Test File",
@@ -46,7 +46,7 @@ describe("HTTP header Figma API key authentication", () => {
   beforeEach(() => {
     const realFetch = globalThis.fetch;
     fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
-      if (String(input).startsWith("https://api.figma.com")) {
+      if (String(input).startsWith(FIGMA_API_BASE_URL)) {
         return Response.json(figmaFileResponse);
       }
       return realFetch(input, init);
@@ -78,16 +78,15 @@ describe("HTTP header Figma API key authentication", () => {
 
   function firstFigmaRequestHeaders(): Record<string, string> {
     const figmaCall = fetchMock.mock.calls.find(([input]) =>
-      String(input).startsWith("https://api.figma.com"),
+      String(input).startsWith(FIGMA_API_BASE_URL),
     );
     const init = figmaCall?.[1] as RequestInit & { headers?: Record<string, string> };
     return init.headers ?? {};
   }
 
   function figmaRequestCount(): number {
-    return fetchMock.mock.calls.filter(([input]) =>
-      String(input).startsWith("https://api.figma.com"),
-    ).length;
+    return fetchMock.mock.calls.filter(([input]) => String(input).startsWith(FIGMA_API_BASE_URL))
+      .length;
   }
 
   it("uses X-Figma-Token from the HTTP request for get_figma_data", async () => {

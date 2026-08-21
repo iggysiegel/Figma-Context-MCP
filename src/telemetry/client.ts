@@ -70,20 +70,19 @@ function redactErrorMessage(message: string): string {
 }
 
 /**
- * Telemetry is enabled by default. Any single opt-out signal disables it —
- * the `optOut` flag (CLI), FRAMELINK_TELEMETRY=off, or a truthy DO_NOT_TRACK.
- * Signals are OR'd, not prioritized, so users can't accidentally re-enable
- * telemetry by setting one variable when another is already opting out.
+ * Telemetry is opt-in in this fork, inverting upstream's opt-out: only
+ * FRAMELINK_TELEMETRY=on enables it, and every other value — including "off"
+ * and unset — leaves it disabled. The opt-out signals are checked first so an
+ * explicit opt-out always beats an explicit opt-in.
  *
  * DO_NOT_TRACK follows the https://consoledonottrack.com/ convention: any
  * non-empty value other than "0" means opt-out.
  */
 export function resolveTelemetryEnabled(optOut?: boolean): boolean {
   if (optOut === true) return false;
-  if (process.env.FRAMELINK_TELEMETRY === "off") return false;
   const doNotTrack = process.env.DO_NOT_TRACK;
   if (doNotTrack && doNotTrack !== "0") return false;
-  return true;
+  return process.env.FRAMELINK_TELEMETRY === "on";
 }
 
 export function initTelemetry(opts?: InitTelemetryOptions): boolean {

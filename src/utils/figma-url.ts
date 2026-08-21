@@ -10,7 +10,7 @@ const FIGMA_PATH_PATTERN = /^\/(file|design)\/([a-zA-Z0-9]+)/;
 export function parseFigmaUrl(input: string): FigmaUrlParts {
   const url = new URL(input);
 
-  if (url.hostname !== "figma.com" && !url.hostname.endsWith(".figma.com")) {
+  if (url.hostname !== "figma-gov.com" && !url.hostname.endsWith(".figma-gov.com")) {
     tagError(new Error(`Not a Figma URL: ${input}`), { category: "invalid_input" });
   }
 

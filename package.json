@@ -1,17 +1,12 @@
 {
-  "name": "figma-developer-mcp",
+  "name": "figma-gov-mcp",
   "version": "0.13.2",
-  "mcpName": "io.github.GLips/Figma-Context-MCP",
-  "description": "Give your coding agent access to your Figma data. Implement designs in any framework in one-shot.",
+  "description": "MCP server giving coding agents access to Figma for Government design data.",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
-    "figma-developer-mcp": "dist/bin.js"
+    "figma-gov-mcp": "dist/bin.js"
   },
-  "files": [
-    "dist",
-    "README.md"
-  ],
   "scripts": {
     "build": "tsup --dts",
     "type-check": "tsc --noEmit",
@@ -23,27 +18,19 @@
     "dev:cli": "cross-env NODE_ENV=development tsup --watch -- --stdio",
     "lint": "eslint .",
     "format": "prettier --write \"src/**/*.ts\"",
-    "inspect": "pnpx @modelcontextprotocol/inspector",
-    "benchmark:simplify": "tsx scripts/benchmark-simplify.ts",
-    "prepack": "pnpm build"
+    "inspect": "npx @modelcontextprotocol/inspector",
+    "prepack": "npm run build"
   },
   "engines": {
     "node": ">=20.20.0"
   },
-  "packageManager": "pnpm@10.10.0",
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "esbuild",
-      "lefthook"
-    ]
-  },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/GLips/Figma-Context-MCP.git"
+    "url": "git+https://github.com/iggysiegel/Figma-Context-MCP.git"
   },
-  "homepage": "https://www.framelink.ai",
   "keywords": [
     "figma",
+    "figma-gov",
     "mcp",
     "typescript"
   ],
@@ -77,7 +64,6 @@
     "eslint": "^9.39.3",
     "eslint-config-prettier": "^10.0.1",
     "globals": "^17.3.0",
-    "lefthook": "^2.0.15",
     "prettier": "^3.5.0",
     "tsup": "^8.5.1",
     "tsx": "^4.21.0",

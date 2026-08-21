@@ -1,95 +1,87 @@
-<a href="https://www.framelink.ai/?utm_source=github&utm_medium=referral&utm_campaign=readme" target="_blank" rel="noopener">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://www.framelink.ai/github/HeaderDark.png" />
-    <img alt="Framelink" src="https://www.framelink.ai/github/HeaderLight.png" />
-  </picture>
-</a>
+# Figma for Government MCP
 
-<div align="center">
-  <h1>Framelink MCP for Figma</h1>
-  <h3>Give your coding agent access to your Figma data.<br/>Implement designs in any framework in one-shot.</h3>
-  <a href="https://npmcharts.com/compare/figma-developer-mcp?interval=30">
-    <img alt="weekly downloads" src="https://img.shields.io/npm/dm/figma-developer-mcp.svg">
-  </a>
-  <a href="https://github.com/GLips/Figma-Context-MCP/blob/main/LICENSE">
-    <img alt="MIT License" src="https://img.shields.io/github/license/GLips/Figma-Context-MCP" />
-  </a>
-  <a href="https://framelink.ai/discord">
-    <img alt="Discord" src="https://img.shields.io/discord/1352337336913887343?color=7389D8&label&logo=discord&logoColor=ffffff" />
-  </a>
-  <br />
-  <a href="https://twitter.com/glipsman">
-    <img alt="Twitter" src="https://img.shields.io/twitter/url?url=https%3A%2F%2Fx.com%2Fglipsman&label=%40glipsman" />
-  </a>
-</div>
+An MCP server that gives AI coding agents access to Figma design data, so they can implement a
+design from the source file rather than from a screenshot.
 
-<br/>
+A fork of [GLips/Figma-Context-MCP](https://github.com/GLips/Figma-Context-MCP) by Graham Lipsman.
+Nearly all of this codebase — the design extraction and simplification — is his work; the fork
+changes the API host and a few related strings.
 
-Give [Cursor](https://cursor.sh/) and other AI-powered coding tools access to your Figma files with this [Model Context Protocol](https://modelcontextprotocol.io/introduction) server.
+## Why this fork exists
 
-When Cursor has access to Figma design data, it's **way** better at one-shotting designs accurately than alternative approaches like pasting screenshots.
+Figma does not offer its remote MCP server to Figma for Government, and its desktop MCP server
+requires a desktop app distributed from `figma.com`, which is blocked on many government networks.
+That leaves those networks unable to use either option.
 
-<h3><a href="https://www.framelink.ai/docs/quickstart?utm_source=github&utm_medium=referral&utm_campaign=readme">See quickstart instructions →</a></h3>
+This server needs neither. Figma for Government exposes the same REST API on a different hostname,
+so the only host it has to reach is `api.figma-gov.com`.
 
-## Demo
+## What it does
 
-[Watch a demo of building a UI in Cursor with Figma design data](https://youtu.be/6G9yb-LrEqg)
+Given a file key, and optionally a node ID, it fetches the design and strips the response down to
+what matters for writing code: layout, styling, text, and component metadata. Raw Figma responses
+are large and mostly irrelevant to implementation, and passing all of it to a model wastes
+context. It exposes two tools:
 
-[![Watch the video](https://img.youtube.com/vi/6G9yb-LrEqg/maxresdefault.jpg)](https://youtu.be/6G9yb-LrEqg)
+- `get_figma_data` — fetch and simplify a whole file or a single node.
+- `download_figma_images` — download image fills and rendered nodes to a local directory.
 
-## How it works
+## Setup
 
-1. Open your IDE's chat (e.g. agent mode in Cursor).
-2. Paste a link to a Figma file, frame, or group.
-3. Ask Cursor to do something with the Figma file—e.g. implement the design.
-4. Cursor will fetch the relevant metadata from Figma and use it to write your code.
+Requires Node 20.20.0 or newer and a Figma for Government account.
 
-This MCP server is specifically designed for use with Cursor. Before responding with context from the [Figma API](https://www.figma.com/developers/api), it simplifies and translates the response so only the most relevant layout and styling information is provided to the model.
+### 1. Create an access token
 
-Reducing the amount of context provided to the model helps make the AI more accurate and the responses more relevant.
+In your account: Settings, then Security, then Personal access tokens. Grant the
+`file_content:read` scope; it covers everything this server does.
 
-## Getting Started
+### 2. Build
 
-Many code editors and other AI clients use a configuration file to manage MCP servers.
-
-The `figma-developer-mcp` server can be configured by adding the following to your configuration file.
-
-> NOTE: You will need to create a Figma access token to use this server. Instructions on how to create a Figma API access token can be found [here](https://help.figma.com/hc/en-us/articles/8085703771159-Manage-personal-access-tokens).
-
-### MacOS / Linux
-
-```json
-{
-  "mcpServers": {
-    "Framelink MCP for Figma": {
-      "command": "npx",
-      "args": ["-y", "figma-developer-mcp", "--figma-api-key=YOUR-KEY", "--stdio"]
-    }
-  }
-}
+```bash
+npm install
+npm run build
 ```
 
-### Windows
+### 3. Configure your MCP client
 
-```json
-{
-  "mcpServers": {
-    "Framelink MCP for Figma": {
-      "command": "cmd",
-      "args": ["/c", "npx", "-y", "figma-developer-mcp", "--figma-api-key=YOUR-KEY", "--stdio"]
-    }
-  }
-}
+Point it at the built entry point over stdio, using an absolute path:
+
+```
+node /absolute/path/to/dist/bin.js --stdio --image-dir=/path/to/your/project/src/assets/figma
 ```
 
-Or you can set `FIGMA_API_KEY` and `PORT` in the `env` field.
+Pass `FIGMA_API_KEY` through the client's environment block rather than as an argument, so the
+token does not appear in process listings.
 
-If you need more information on how to configure the Framelink MCP for Figma, see the [Framelink docs](https://www.framelink.ai/docs/quickstart?utm_source=github&utm_medium=referral&utm_campaign=readme).
+Set `--image-dir` explicitly. It defaults to the server's working directory, which for a stdio
+server is wherever the client happened to launch it. Downloads outside that directory are refused,
+so it is a containment boundary worth pointing somewhere deliberate.
 
-## Star History
+## Usage
 
-<a href="https://star-history.com/#GLips/Figma-Context-MCP"><img src="https://api.star-history.com/svg?repos=GLips/Figma-Context-MCP&type=Date" alt="Star History Chart" width="600" /></a>
+Paste a `figma-gov.com` link into your agent's chat and ask it to implement the design.
 
-## Learn More
+Design data can be large. Select a frame and copy the link to it rather than linking a whole file;
+leave the output format at its default, `tree`, which is about half the size of `yaml`; and if a
+frame is still too big, `depth` limits how far down the node tree the server walks.
 
-The Framelink MCP for Figma is simple but powerful. Get the most out of it by learning more at the [Framelink](https://framelink.ai?utm_source=github&utm_medium=referral&utm_campaign=readme) site.
+## Differences from upstream
+
+The API host `https://api.figma-gov.com` is hardcoded, so this build cannot reach commercial
+`figma.com` files — use upstream for those. URL parsing accepts `figma-gov.com` hostnames.
+
+Telemetry is opt-in rather than opt-out. Nothing is sent unless `FRAMELINK_TELEMETRY=on` is set,
+and with it unset no analytics client is constructed at all.
+
+## Troubleshooting
+
+A 403 with `"Invalid token"` means the token is wrong or missing `file_content:read`; a 403
+mentioning permissions means the token's account cannot see that file. The server prints the full
+list of likely causes with every 403.
+
+To separate a network problem from a client problem, fetch a file directly, bypassing MCP:
+
+```bash
+node dist/bin.js fetch "https://www.figma-gov.com/design/<fileKey>/Name?node-id=1-2" \
+  --figma-api-key=<token>
+```

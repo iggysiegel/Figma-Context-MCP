@@ -16,7 +16,7 @@ const parameters = {
     .string()
     .regex(/^[a-zA-Z0-9]+$/, "File key must be alphanumeric")
     .describe(
-      "The key of the Figma file to fetch, often found in a provided URL like figma.com/(file|design)/<fileKey>/...",
+      "The key of the Figma file to fetch, often found in a provided URL like figma-gov.com/(file|design)/<fileKey>/...",
     ),
   nodeId: z
     .string()
