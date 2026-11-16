@@ -43,7 +43,7 @@
     "@jimp/js-jpeg": "^1.6.0",
     "@jimp/js-png": "^1.6.0",
     "@jimp/plugin-crop": "^1.6.0",
-    "@modelcontextprotocol/sdk": "1.29.0",
+    "@modelcontextprotocol/sdk": "1.32.2",
     "cleye": "^2.2.1",
     "cross-env": "^7.0.3",
     "dotenv": "^16.4.7",
@@ -52,7 +52,7 @@
     "posthog-node": "^5.29.2",
     "remeda": "^2.20.1",
     "undici": "^7.25.0",
-    "zod": "^3.25.76"
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@eslint/js": "^9.33.0",
@@ -69,5 +69,12 @@
     "tsx": "^4.21.0",
     "typescript": "^5.7.3",
     "vitest": "^4.0.18"
+  },
+  "overrides": {
+    "zod": "$zod",
+    "@typescript-eslint/typescript-estree": {
+      "minimatch": "^11.0.8"
+    },
+    "esbuild": "^0.28.2"
   }
 }
